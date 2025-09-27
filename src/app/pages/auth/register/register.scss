@@ -1,0 +1,198 @@
+// Registration page specific styles
+
+.register-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+// Form styling
+.register-form {
+  .form-group {
+    margin-bottom: 1.5rem;
+
+    label {
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    input {
+      transition: all 0.2s ease-in-out;
+      
+      &:focus {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        transform: translateY(-1px);
+      }
+      
+      &.ng-invalid.ng-touched {
+        border-color: #ef4444;
+        
+        &:focus {
+          box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+      }
+      
+      &.ng-valid.ng-touched {
+        border-color: #10b981;
+        
+        &:focus {
+          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+      }
+    }
+  }
+}
+
+// Password strength indicator
+.password-requirements {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+  
+  .requirement {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.25rem;
+    
+    &.valid {
+      color: #10b981;
+      
+      .icon {
+        color: #10b981;
+      }
+    }
+    
+    &.invalid {
+      color: #ef4444;
+      
+      .icon {
+        color: #ef4444;
+      }
+    }
+    
+    .icon {
+      width: 1rem;
+      height: 1rem;
+      margin-right: 0.5rem;
+    }
+  }
+}
+
+// Social login buttons
+.social-buttons {
+  .btn-social {
+    transition: all 0.2s ease-in-out;
+    position: relative;
+    overflow: hidden;
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+    
+    &.google {
+      &:hover {
+        background-color: #f8f9fa;
+        border-color: #dadce0;
+      }
+    }
+    
+    &.facebook {
+      &:hover {
+        background-color: #1877f2;
+      }
+    }
+  }
+}
+
+// Loading spinner
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Success/Error messages
+.alert {
+  animation: slideInDown 0.3s ease-out;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Form animation
+.register-form {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 640px) {
+  .register-container {
+    padding: 1rem;
+  }
+  
+  .form-card {
+    margin: 0;
+    border-radius: 0.5rem;
+  }
+  
+  .name-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem;
+  }
+}
+
+// Custom checkbox styling
+input[type="checkbox"] {
+  &:checked {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+  }
+  
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+}
+
+// Terms and privacy links
+.terms-links {
+  a {
+    transition: color 0.2s ease-in-out;
+    
+    &:hover {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+  }
+}

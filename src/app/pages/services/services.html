@@ -1,0 +1,259 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Hero Section -->
+  <div class="bg-gradient-to-r from-primary-600 to-primary-800 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div class="text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">
+          Professional Car Detailing Services
+        </h1>
+        <p class="text-xl text-primary-100 max-w-3xl mx-auto">
+          Transform your vehicle with our premium detailing services. From basic washes to complete paint protection, we have everything your car needs.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Service Categories Filter -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex flex-wrap justify-center gap-4 mb-8">
+      <button
+        *ngFor="let category of serviceCategories"
+        (click)="filterByCategory(category.id)"
+        [class]="getCategoryButtonClasses(category.id)"
+        class="px-6 py-3 rounded-full font-medium transition-all duration-200"
+      >
+        {{ category.name }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Services Grid -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div
+        *ngFor="let service of filteredServices()"
+        class="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden"
+      >
+        <!-- Service Image -->
+        <div class="relative h-48 bg-gradient-to-br from-primary-100 to-primary-200">
+          <img
+            *ngIf="service.image; else placeholderImage"
+            [src]="service.image"
+            [alt]="service.name"
+            class="w-full h-full object-cover"
+          />
+          <ng-template #placeholderImage>
+            <div class="w-full h-full flex items-center justify-center">
+              <svg class="w-16 h-16 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </div>
+          </ng-template>
+          
+          <!-- Duration Badge -->
+          <div class="absolute top-4 right-4 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm font-medium">
+            {{ service.duration }} min
+          </div>
+          
+          <!-- Popular Badge -->
+          <div *ngIf="service.isPopular" class="absolute top-4 left-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+            POPULAR
+          </div>
+        </div>
+
+        <!-- Service Content -->
+        <div class="p-6">
+          <div class="flex justify-between items-start mb-3">
+            <h3 class="text-xl font-bold text-gray-900">{{ service.name }}</h3>
+            <div class="text-right">
+              <div class="text-2xl font-bold text-primary-600">
+                ${{ service.price }}
+              </div>
+              <div *ngIf="service.originalPrice && service.originalPrice > service.price" class="text-sm text-gray-500 line-through">
+                ${{ service.originalPrice }}
+              </div>
+            </div>
+          </div>
+
+          <p class="text-gray-600 mb-4">{{ service.description }}</p>
+
+          <!-- Features List -->
+          <div class="mb-6">
+            <h4 class="font-semibold text-gray-900 mb-2">What's Included:</h4>
+            <ul class="space-y-1">
+              <li *ngFor="let feature of service.features" class="flex items-center text-sm text-gray-600">
+                <svg class="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                {{ feature }}
+              </li>
+            </ul>
+          </div>
+
+          <!-- Service Levels (if available) -->
+          <div *ngIf="service.levels && service.levels.length > 0" class="mb-6">
+            <h4 class="font-semibold text-gray-900 mb-3">Service Levels:</h4>
+            <div class="space-y-2">
+              <div
+                *ngFor="let level of service.levels"
+                class="flex justify-between items-center p-3 border border-gray-200 rounded-lg"
+              >
+                <div>
+                  <span class="font-medium text-gray-900">{{ level.name }}</span>
+                  <p class="text-sm text-gray-500">{{ level.description }}</p>
+                </div>
+                <span class="text-lg font-bold text-primary-600">${{ level.price }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rating and Reviews -->
+          <div class="flex items-center mb-4">
+            <div class="flex items-center">
+              <div class="flex">
+                <svg *ngFor="let star of [1,2,3,4,5]; let i = index" 
+                     [class]="i < service.rating ? 'text-yellow-400' : 'text-gray-300'"
+                     class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              </div>
+              <span class="ml-2 text-sm text-gray-600">{{ service.rating }} ({{ service.reviewCount }} reviews)</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex space-x-3">
+            <button
+              (click)="bookService(service)"
+              class="flex-1 bg-primary-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-primary-700 transition-colors duration-200"
+            >
+              Book Now
+            </button>
+            <button
+              (click)="viewServiceDetails(service)"
+              class="px-4 py-3 border border-primary-600 text-primary-600 rounded-lg font-medium hover:bg-primary-50 transition-colors duration-200"
+            >
+              Details
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Services Message -->
+    <div *ngIf="filteredServices().length === 0" class="text-center py-16">
+      <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No services found</h3>
+      <p class="text-gray-500">Try selecting a different category or check back later.</p>
+    </div>
+  </div>
+
+  <!-- Call to Action Section -->
+  <div class="bg-primary-600 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div class="text-center">
+        <h2 class="text-3xl font-bold mb-4">
+          Need a Custom Service Package?
+        </h2>
+        <p class="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
+          Contact us for a personalized quote tailored to your specific needs and vehicle requirements.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a
+            href="tel:+1234567890"
+            class="bg-white text-primary-600 px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors duration-200"
+          >
+            Call Now: (123) 456-7890
+          </a>
+          <button
+            (click)="openConsultationForm()"
+            class="border-2 border-white text-white px-8 py-3 rounded-lg font-medium hover:bg-white hover:text-primary-600 transition-colors duration-200"
+          >
+            Request Consultation
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Service Details Modal -->
+<div
+  *ngIf="selectedService()"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+  (click)="closeServiceDetails()"
+>
+  <div
+    class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="p-6">
+      <!-- Modal Header -->
+      <div class="flex justify-between items-start mb-6">
+        <div>
+          <h3 class="text-2xl font-bold text-gray-900">{{ selectedService()?.name }}</h3>
+          <p class="text-primary-600 text-xl font-semibold">${{ selectedService()?.price }}</p>
+        </div>
+        <button
+          (click)="closeServiceDetails()"
+          class="text-gray-400 hover:text-gray-600 text-2xl"
+        >
+          ×
+        </button>
+      </div>
+
+      <!-- Modal Content -->
+      <div class="space-y-6">
+        <div>
+          <h4 class="font-semibold text-gray-900 mb-2">Description</h4>
+          <p class="text-gray-600">{{ selectedService()?.description }}</p>
+        </div>
+
+        <div>
+          <h4 class="font-semibold text-gray-900 mb-2">Service Details</h4>
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <span class="text-sm text-gray-500">Duration</span>
+                <p class="font-medium">{{ selectedService()?.duration }} minutes</p>
+              </div>
+              <div>
+                <span class="text-sm text-gray-500">Service Type</span>
+                <p class="font-medium">{{ getServiceCategoryName(selectedService()?.categoryId) }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="font-semibold text-gray-900 mb-2">What's Included</h4>
+          <ul class="space-y-2">
+            <li *ngFor="let feature of selectedService()?.features" class="flex items-center">
+              <svg class="w-5 h-5 text-green-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              {{ feature }}
+            </li>
+          </ul>
+        </div>
+
+        <div class="flex space-x-3 pt-6 border-t">
+          <button
+            (click)="bookService(selectedService()!)"
+            class="flex-1 bg-primary-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-primary-700 transition-colors"
+          >
+            Book This Service
+          </button>
+          <button
+            (click)="closeServiceDetails()"
+            class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,264 @@
+import { Injectable, signal, computed } from '@angular/core';
+import { Observable, from, BehaviorSubject, throwError } from 'rxjs';
+import { map, catchError, tap, switchMap } from 'rxjs/operators';
+import { supabase, handleSupabaseError } from '../config/supabase.config';
+import { Database } from '../types/database.types';
+import { User, CreateUserRequest, LoginRequest, AuthResponse, UserRole } from '../models/user.interface';
+import { Session, AuthError } from '@supabase/supabase-js';
+
+type DbUser = Database['public']['Tables']['users']['Row'];
+type DbUserInsert = Database['public']['Tables']['users']['Insert'];
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+  private currentUserSubject = new BehaviorSubject<User | null>(null);
+  private sessionSubject = new BehaviorSubject<Session | null>(null);
+  
+  public currentUser$ = this.currentUserSubject.asObservable();
+  public session$ = this.sessionSubject.asObservable();
+  public isAuthenticated$ = computed(() => this.currentUserSubject.value !== null);
+  public userRole$ = computed(() => this.currentUserSubject.value?.role || 'client');
+  
+  constructor() {
+    this.initializeAuth();
+  }
+
+  private async initializeAuth(): Promise<void> {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        await this.setSession(session);
+      }
+
+      // Listen for auth changes
+      supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          await this.setSession(session);
+        } else if (event === 'SIGNED_OUT') {
+          this.clearSession();
+        }
+      });
+    } catch (error) {
+      console.error('Error initializing auth:', error);
+    }
+  }
+
+  private async setSession(session: Session): Promise<void> {
+    this.sessionSubject.next(session);
+    
+    try {
+      // Get user profile from database
+      const { data: userProfile, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+
+      if (error) throw error;
+
+      if (userProfile) {
+        const user: User = this.mapDbUserToUser(userProfile);
+        this.currentUserSubject.next(user);
+        
+        // Update last login
+        await supabase
+          .from('users')
+          .update({ last_login_at: new Date().toISOString() })
+          .eq('id', session.user.id);
+      }
+    } catch (error) {
+      console.error('Error setting session:', error);
+    }
+  }
+
+  private clearSession(): void {
+    this.sessionSubject.next(null);
+    this.currentUserSubject.next(null);
+  }
+
+  private mapDbUserToUser(dbUser: DbUser): User {
+    return {
+      id: dbUser.id,
+      email: dbUser.email,
+      firstName: dbUser.first_name,
+      lastName: dbUser.last_name,
+      phone: dbUser.phone || undefined,
+      profilePicture: dbUser.profile_picture_url || undefined,
+      createdAt: new Date(dbUser.created_at),
+      updatedAt: new Date(dbUser.updated_at),
+      isVerified: dbUser.is_verified,
+      role: dbUser.role as UserRole,
+      preferences: dbUser.preferences as any
+    };
+  }
+
+  // Sign up with email and password
+  signUp(userData: CreateUserRequest): Observable<AuthResponse> {
+    return from(supabase.auth.signUp({
+      email: userData.email,
+      password: userData.password,
+      options: {
+        data: {
+          first_name: userData.firstName,
+          last_name: userData.lastName,
+          phone: userData.phone
+        }
+      }
+    })).pipe(
+      switchMap(async ({ data, error }) => {
+        if (error) throw error;
+        if (!data.user || !data.session) throw new Error('User creation failed');
+
+        // Create user profile in database
+        const userInsert: DbUserInsert = {
+          id: data.user.id,
+          email: userData.email,
+          first_name: userData.firstName,
+          last_name: userData.lastName,
+          phone: userData.phone,
+          role: 'client',
+          is_verified: false
+        };
+
+        const { error: profileError } = await supabase
+          .from('users')
+          .insert(userInsert);
+
+        if (profileError) throw profileError;
+
+        const user = this.mapDbUserToUser({
+          ...userInsert,
+          profile_picture_url: null,
+          preferences: {},
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          last_login_at: null
+        } as DbUser);
+
+        return {
+          user,
+          accessToken: data.session.access_token,
+          refreshToken: data.session.refresh_token,
+          expiresIn: data.session.expires_in || 3600
+        } as AuthResponse;
+      }),
+      catchError(error => throwError(() => new Error(handleSupabaseError(error))))
+    );
+  }
+
+  // Sign in with email and password
+  signIn(credentials: LoginRequest): Observable<AuthResponse> {
+    return from(supabase.auth.signInWithPassword({
+      email: credentials.email,
+      password: credentials.password
+    })).pipe(
+      switchMap(async ({ data, error }) => {
+        if (error) throw error;
+        if (!data.user || !data.session) throw new Error('Sign in failed');
+
+        // Get user profile
+        const { data: userProfile, error: profileError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profileError) throw profileError;
+        
+        const user = this.mapDbUserToUser(userProfile);
+        
+        return {
+          user,
+          accessToken: data.session.access_token,
+          refreshToken: data.session.refresh_token,
+          expiresIn: data.session.expires_in || 3600
+        } as AuthResponse;
+      }),
+      catchError(error => throwError(() => new Error(handleSupabaseError(error))))
+    );
+  }
+
+  // Sign out
+  signOut(): Observable<void> {
+    return from(supabase.auth.signOut()).pipe(
+      map(() => void 0),
+      catchError(error => throwError(() => new Error(handleSupabaseError(error))))
+    );
+  }
+
+  // Reset password
+  resetPassword(email: string): Observable<void> {
+    return from(supabase.auth.resetPasswordForEmail(email)).pipe(
+      map(() => void 0),
+      catchError(error => throwError(() => new Error(handleSupabaseError(error))))
+    );
+  }
+
+  // Update user profile
+  updateProfile(updates: Partial<User>): Observable<User> {
+    const currentUser = this.currentUserSubject.value;
+    if (!currentUser) {
+      return throwError(() => new Error('No authenticated user'));
+    }
+
+    const dbUpdates: Partial<DbUser> = {
+      first_name: updates.firstName,
+      last_name: updates.lastName,
+      phone: updates.phone,
+      profile_picture_url: updates.profilePicture,
+      preferences: updates.preferences as any
+    };
+
+    return from(supabase
+      .from('users')
+      .update(dbUpdates)
+      .eq('id', currentUser.id)
+      .select()
+      .single()
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        const updatedUser = this.mapDbUserToUser(data);
+        this.currentUserSubject.next(updatedUser);
+        return updatedUser;
+      }),
+      catchError(error => throwError(() => new Error(handleSupabaseError(error))))
+    );
+  }
+
+  // Get current user
+  getCurrentUser(): User | null {
+    return this.currentUserSubject.value;
+  }
+
+  // Check if user has role
+  hasRole(role: UserRole): boolean {
+    const user = this.getCurrentUser();
+    return user?.role === role;
+  }
+
+  // Check if user is admin
+  isAdmin(): boolean {
+    return this.hasRole(UserRole.ADMIN);
+  }
+
+  // Check if user is technician
+  isTechnician(): boolean {
+    return this.hasRole(UserRole.TECHNICIAN);
+  }
+
+  // Social sign in (Google, Facebook, etc.)
+  signInWithProvider(provider: 'google' | 'facebook'): Observable<void> {
+    return from(supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`
+      }
+    })).pipe(
+      map(() => void 0),
+      catchError(error => throwError(() => new Error(handleSupabaseError(error))))
+    );
+  }
+}

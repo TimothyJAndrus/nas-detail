@@ -1,0 +1,260 @@
+<div class="booking-container max-w-4xl mx-auto p-6">
+  <!-- Progress Indicator -->
+  <div class="mb-8">
+    <div class="flex items-center justify-between">
+      <div *ngFor="let step of [1, 2, 3, 4, 5]; let i = index"
+           class="flex items-center"
+           [class.flex-1]="i < 4">
+        <div class="flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium"
+             [class.bg-blue-600]="(currentStep$ | async) === step"
+             [class.text-white]="(currentStep$ | async) === step"
+             [class.bg-green-600]="isStepCompleted(step)"
+             [class.text-white]="isStepCompleted(step)"
+             [class.bg-gray-200]="(currentStep$ | async) !== step && !isStepCompleted(step)"
+             [class.text-gray-600]="(currentStep$ | async) !== step && !isStepCompleted(step)">
+          {{ step }}
+        </div>
+        <div class="flex-1 h-px bg-gray-200 mx-4" *ngIf="i < 4"></div>
+      </div>
+    </div>
+    <div class="mt-2 text-center">
+      <h2 class="text-lg font-medium text-gray-900">
+        {{ getStepTitle((currentStep$ | async) || 1) }}
+      </h2>
+    </div>
+  </div>
+
+  <!-- Step Content -->
+  <div class="bg-white rounded-lg shadow-sm border p-6">
+    <!-- Step 1: Service Selection -->
+    <div *ngIf="(currentStep$ | async) === 1">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Choose Your Service</h3>
+
+      <form [formGroup]="step1Form">
+        <div class="space-y-4">
+          <!-- Service Types -->
+          <div>
+            <label for="serviceType" class="block text-sm font-medium text-gray-700 mb-2">
+              Service Type
+            </label>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div *ngFor="let service of availableServices$ | async"
+                   class="border rounded-lg p-4 cursor-pointer hover:border-blue-500 transition-colors"
+                   [class.border-blue-500]="step1Form.get('selectedServiceId')?.value === service.id"
+                   [class.bg-blue-50]="step1Form.get('selectedServiceId')?.value === service.id"
+                   (click)="selectService(service)"
+                   (keydown)="selectService(service)">
+                <input type="radio"
+                       id="serviceType"
+                       formControlName="selectedServiceId"
+                       [value]="service.id"
+                       class="hidden" />
+                <h4 class="font-medium text-gray-900">{{ service.name }}</h4>
+                <p class="text-sm text-gray-600 mt-1">{{ service.description }}</p>
+                <p class="text-lg font-semibold text-blue-600 mt-2">
+                  Starting at {{ formatPrice(service.basePrice) }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Service Levels -->
+          <div *ngIf="step1Form.get('selectedServiceId')?.value">
+            <label for="serviceLevel" class="block text-sm font-medium text-gray-700 mb-2">
+              Service Level
+            </label>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div *ngFor="let level of availableLevels$ | async"
+                   class="border rounded-lg p-4 cursor-pointer hover:border-blue-500 transition-colors"
+                   [class.border-blue-500]="step1Form.get('selectedLevelId')?.value === level.id"
+                   [class.bg-blue-50]="step1Form.get('selectedLevelId')?.value === level.id"
+                   (click)="selectServiceLevel(level)"
+                   (keydown)="selectServiceLevel(level)">
+                <input type="radio"
+                       id="serviceLevel"
+                       formControlName="selectedLevelId"
+                       [value]="level.id"
+                       class="hidden" />
+                <h4 class="font-medium text-gray-900">{{ level.name }}</h4>
+                <p class="text-sm text-gray-600 mt-1">{{ level.description }}</p>
+                <ul class="text-xs text-gray-500 mt-2 space-y-1">
+                  <li *ngFor="let feature of level.features">• {{ feature }}</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Step 2: Vehicle Information -->
+    <div *ngIf="(currentStep$ | async) === 2">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Vehicle Information</h3>
+
+      <form [formGroup]="step2Form">
+        <!-- Existing Vehicles -->
+        <div class="mb-6" *ngIf="(savedVehicles$ | async)?.length">
+          <label for="selectedVehicleId" class="block text-sm font-medium text-gray-700 mb-2">
+            Select Existing Vehicle
+          </label>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div *ngFor="let vehicle of savedVehicles$ | async"
+                 class="border rounded-lg p-4 cursor-pointer hover:border-blue-500 transition-colors"
+                 [class.border-blue-500]="step2Form.get('selectedVehicleId')?.value === vehicle.id"
+                 [class.bg-blue-50]="step2Form.get('selectedVehicleId')?.value === vehicle.id"
+                 (click)="selectExistingVehicle(vehicle)"
+                 (keydown)="selectExistingVehicle(vehicle)">
+              <input type="radio"
+                     id="selectedVehicleId-{{vehicle.id}}"
+                     formControlName="selectedVehicleId"
+                     [value]="vehicle.id"
+                     class="hidden" />
+              <h4 class="font-medium text-gray-900">
+                {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}
+              </h4>
+              <p class="text-sm text-gray-600">{{ vehicle.color }}</p>
+              <p class="text-xs text-gray-500">{{ vehicle.licensePlate }}</p>
+            </div>
+          </div>
+
+          <button type="button"
+                  class="text-blue-600 hover:text-blue-800 text-sm"
+                  (click)="toggleAddNewVehicle()">
+            {{ isAddingNewVehicle ? 'Cancel' : '+ Add New Vehicle' }}
+          </button>
+        </div>
+
+        <!-- New Vehicle Form -->
+        <div *ngIf="isAddingNewVehicle || !(savedVehicles$ | async)?.length"
+             class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="make" class="block text-sm font-medium text-gray-700">Make</label>
+              <input id="make" type="text"
+                     formControlName="make"
+                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+            </div>
+            <div>
+              <label for="model" class="block text-sm font-medium text-gray-700">Model</label>
+              <input id="model" type="text"
+                     formControlName="model"
+                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-4">
+            <div>
+              <label for="year" class="block text-sm font-medium text-gray-700">Year</label>
+              <input id="year" type="number"
+                     formControlName="year"
+                     min="1900"
+                     max="2025"
+                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+            </div>
+            <div>
+              <label for="color" class="block text-sm font-medium text-gray-700">Color</label>
+              <input id="color" type="text"
+                     formControlName="color"
+                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+            </div>
+            <div>
+              <label for="licensePlate" class="block text-sm font-medium text-gray-700">License Plate</label>
+              <input id="licensePlate" type="text"
+                     formControlName="licensePlate"
+                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Step 3: Date & Time Selection -->
+    <div *ngIf="(currentStep$ | async) === 3">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Select Date & Time</h3>
+
+      <form [formGroup]="step3Form">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Calendar -->
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <button type="button"
+                      (click)="previousMonth()"
+                      class="p-2 hover:bg-gray-100 rounded">
+                ← Previous
+              </button>
+              <h4 class="font-medium">
+                {{ selectedMonth.toLocaleDateString('en-US', {month: 'long', year: 'numeric'}) }}
+              </h4>
+              <button type="button"
+                      (click)="nextMonth()"
+                      class="p-2 hover:bg-gray-100 rounded">
+                Next →
+              </button>
+            </div>
+
+            <div class="grid grid-cols-7 gap-1 text-center text-sm">
+              <div class="font-medium text-gray-500 p-2">Sun</div>
+              <div class="font-medium text-gray-500 p-2">Mon</div>
+              <div class="font-medium text-gray-500 p-2">Tue</div>
+              <div class="font-medium text-gray-500 p-2">Wed</div>
+              <div class="font-medium text-gray-500 p-2">Thu</div>
+              <div class="font-medium text-gray-500 p-2">Fri</div>
+              <div class="font-medium text-gray-500 p-2">Sat</div>
+
+              <button *ngFor="let day of calendarDays"
+                      type="button"
+                      (click)="selectDate(day)"
+                      [disabled]="!isDateAvailable(day)"
+                      class="p-2 hover:bg-blue-100 rounded transition-colors"
+                      [class.bg-blue-600]="isDateSelected(day)"
+                      [class.text-white]="isDateSelected(day)"
+                      [class.text-gray-400]="!isDateAvailable(day)"
+                      [class.cursor-not-allowed]="!isDateAvailable(day)">
+                {{ day.getDate() }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Time Slots -->
+          <div *ngIf="step3Form.get('selectedDate')?.value">
+            <h4 class="font-medium mb-4">Available Times</h4>
+            <div class="space-y-2">
+              <ng-container *ngFor="let day of availableDays$ | async">
+                <button *ngFor="let slot of day.slots"
+                        type="button"
+                        (click)="selectTimeSlot(slot)"
+                        class="block w-full text-left p-3 border rounded hover:border-blue-500 transition-colors"
+                        [class.border-blue-500]="step3Form.get('selectedTimeSlot')?.value?.id === slot.id"
+                        [class.bg-blue-50]="step3Form.get('selectedTimeSlot')?.value?.id === slot.id">
+                  {{ formatTime(slot.startTime) }}
+                </button>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Additional steps would go here -->
+    <div *ngIf="(currentStep$ | async) && (currentStep$ | async)! > 3">
+      <p class="text-gray-600">Step {{ (currentStep$ | async) }} content coming soon...</p>
+    </div>
+  </div>
+
+  <!-- Navigation Buttons -->
+  <div class="flex justify-between mt-8">
+    <button *ngIf="(canGoToPreviousStep$ | async)"
+            (click)="previousStep()"
+            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+      Previous
+    </button>
+
+    <div></div>
+
+    <button *ngIf="(canProceedToNextStep$ | async)"
+            (click)="nextStep()"
+            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+      {{ (isLastStep$ | async) ? 'Complete Booking' : 'Next' }}
+    </button>
+  </div>
+</div>

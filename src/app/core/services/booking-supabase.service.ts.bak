@@ -1,0 +1,421 @@
+import { Injectable } from '@angular/core';
+import { Observable, from, throwError } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { supabase, handleSupabaseError } from '../config/supabase.config';
+import { Database } from '../types/database.types';
+import { 
+  Booking, 
+  BookingStatus, 
+  Service, 
+  ServicePackage, 
+  ServiceCategory,
+  VehicleInfo,
+  BookingLocation,
+  TimeSlot
+} from '../models/service.interface';
+
+type DbBooking = Database['public']['Tables']['bookings']['Row'];
+type DbBookingInsert = Database['public']['Tables']['bookings']['Insert'];
+type DbService = Database['public']['Tables']['services']['Row'];
+type DbServicePackage = Database['public']['Tables']['service_packages']['Row'];
+type DbVehicle = Database['public']['Tables']['vehicles']['Row'];
+type DbLocation = Database['public']['Tables']['locations']['Row'];
+
+@Injectable({
+  providedIn: 'root'
+})
+export class BookingService {
+
+  constructor() { }
+
+  // Get all active services
+  getServices(): Observable<Service[]> {
+    return from(
+      supabase
+        .from('services')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order')
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        return data.map(this.mapDbServiceToService);
+      }),
+      catchError(error => throwError(() => new Error(handleSupabaseError(error))))
+    );
+  }
+
+  // Get services by category
+  getServicesByCategory(category: ServiceCategory): Observable<Service[]> {
+    return from(
+      supabase
+        .from('services')
+        .select('*')
+        .eq('is_active', true)
+        .eq('category', category)
+        .order('sort_order')
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        return data.map(this.mapDbServiceToService);
+      }),
+      catchError(error => throwError(() => new Error(handleSupabaseError(error))))
+    );
+  }
+
+  // Get popular services
+  getPopularServices(): Observable<Service[]> {
+    return from(
+      supabase
+        .from('services')
+        .select('*')
+        .eq('is_active', true)
+        .eq('is_popular', true)
+        .order('sort_order')
+        .limit(6)
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        return data.map(this.mapDbServiceToService);
+      }),
+      catchError(error => throwError(() => new Error(handleSupabaseError(error))))
+    );
+  }
+
+  // Get service by ID
+  getServiceById(serviceId: string): Observable<Service> {
+    return from(
+      supabase
+        .from('services')
+        .select('*')
+        .eq('id', serviceId)
+        .eq('is_active', true)
+        .single()
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        return this.mapDbServiceToService(data);
+      }),
+      catchError(error => throwError(() => new Error(handleSupabaseError(error))))
+    );
+  }
+
+  // Get service packages
+  getServicePackages(): Observable<ServicePackage[]> {
+    return from(
+      supabase
+        .from('service_packages')
+        .select('*')
+        .eq('is_active', true)
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        return data.map(this.mapDbServicePackageToServicePackage);
+      }),
+      catchError(error => throwError(() => new Error(handleSupabaseError(error))))
+    );
+  }
+
+  // Get user's vehicles
+  getUserVehicles(userId: string): Observable<VehicleInfo[]> {
+    return from(
+      supabase
+        .from('vehicles')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        return data.map(this.mapDbVehicleToVehicleInfo);
+      }),
+      catchError(error => throwError(() => new Error(handleSupabaseError(error))))
+    );
+  }
+
+  // Get user's locations
+  getUserLocations(userId: string): Observable<BookingLocation[]> {
+    return from(
+      supabase
+        .from('locations')
+        .select('*')
+        .eq('user_id', userId)
+        .order('is_primary', { ascending: false })
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        return data.map(this.mapDbLocationToBookingLocation);
+      }),
+      catchError(error => throwError(() => new Error(handleSupabaseError(error))))
+    );
+  }
+
+  // Add vehicle for user
+  addVehicle(userId: string, vehicle: Omit<VehicleInfo, 'id'>): Observable<VehicleInfo> {
+    const vehicleInsert = {
+      user_id: userId,
+      make: vehicle.make,
+      model: vehicle.model,
+      year: vehicle.year,
+      color: vehicle.color,
+      license_plate: vehicle.licensePlate,
+      vehicle_type: vehicle.vehicleType,
+      condition: vehicle.condition || null
+    };
+
+    return from(
+      supabase
+        .from('vehicles')
+        .insert(vehicleInsert)
+        .select()
+        .single()
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        return this.mapDbVehicleToVehicleInfo(data);
+      }),
+      catchError(error => throwError(() => new Error(handleSupabaseError(error))))
+    );
+  }
+
+  // Add location for user
+  addLocation(userId: string, location: Omit<BookingLocation, 'id'>): Observable<BookingLocation> {
+    const locationInsert = {
+      user_id: userId,
+      name: '', // You might want to generate a name or ask user
+      type: location.type,
+      address: location.address,
+      city: location.city,
+      state: location.state,
+      zip_code: location.zipCode,
+      latitude: location.coordinates?.latitude || null,
+      longitude: location.coordinates?.longitude || null,
+      access_instructions: location.accessInstructions || null,
+      is_primary: false
+    };
+
+    return from(
+      supabase
+        .from('locations')
+        .insert(locationInsert)
+        .select()
+        .single()
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        return this.mapDbLocationToBookingLocation(data);
+      }),
+      catchError(error => throwError(() => new Error(handleSupabaseError(error))))
+    );
+  }
+
+  // Create booking
+  createBooking(booking: Omit<Booking, 'id' | 'createdAt' | 'updatedAt' | 'status'>): Observable<Booking> {
+    const bookingInsert: DbBookingInsert = {
+      user_id: booking.userId,
+      service_id: booking.serviceId || null,
+      package_id: booking.packageId || null,
+      vehicle_id: booking.vehicleInfo.id!,
+      location_id: booking.location.id!,
+      scheduled_date: booking.scheduledDateTime.toISOString().split('T')[0],
+      scheduled_time: booking.scheduledDateTime.toTimeString().split(' ')[0],
+      duration_minutes: 120, // Default duration, should come from service
+      total_price: booking.totalPrice,
+      special_instructions: booking.specialInstructions || null,
+      status: 'pending'
+    };
+
+    return from(
+      supabase
+        .from('bookings')
+        .insert(bookingInsert)
+        .select(`
+          *,
+          vehicles (*),
+          locations (*),
+          services (*),
+          service_packages (*)
+        `)
+        .single()
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        return this.mapDbBookingToBooking(data);
+      }),
+      catchError(error => throwError(() => new Error(handleSupabaseError(error))))
+    );
+  }
+
+  // Get user bookings
+  getUserBookings(userId: string): Observable<Booking[]> {
+    return from(
+      supabase
+        .from('bookings')
+        .select(`
+          *,
+          vehicles (*),
+          locations (*),
+          services (*),
+          service_packages (*)
+        `)
+        .eq('user_id', userId)
+        .order('scheduled_date', { ascending: false })
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        return data.map(this.mapDbBookingToBooking);
+      }),
+      catchError(error => throwError(() => new Error(handleSupabaseError(error))))
+    );
+  }
+
+  // Update booking status
+  updateBookingStatus(bookingId: string, status: BookingStatus): Observable<Booking> {
+    const updates: any = { status };
+    
+    if (status === BookingStatus.CONFIRMED) {
+      updates.confirmed_at = new Date().toISOString();
+    } else if (status === BookingStatus.IN_PROGRESS) {
+      updates.started_at = new Date().toISOString();
+    } else if (status === BookingStatus.COMPLETED) {
+      updates.completed_at = new Date().toISOString();
+    } else if (status === BookingStatus.CANCELLED) {
+      updates.cancelled_at = new Date().toISOString();
+    }
+
+    return from(
+      supabase
+        .from('bookings')
+        .update(updates)
+        .eq('id', bookingId)
+        .select(`
+          *,
+          vehicles (*),
+          locations (*),
+          services (*),
+          service_packages (*)
+        `)
+        .single()
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        return this.mapDbBookingToBooking(data);
+      }),
+      catchError(error => throwError(() => new Error(handleSupabaseError(error))))
+    );
+  }
+
+  // Get available time slots for a date
+  getAvailableTimeSlots(date: Date): Observable<TimeSlot[]> {
+    const dateStr = date.toISOString().split('T')[0];
+    
+    return from(
+      supabase
+        .from('time_slots')
+        .select('*')
+        .eq('date', dateStr)
+        .eq('is_available', true)
+        .order('start_time')
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        return data.map(slot => ({
+          date: slot.date,
+          time: slot.start_time,
+          available: slot.is_available,
+          technicianId: slot.technician_id
+        }));
+      }),
+      catchError(error => throwError(() => new Error(handleSupabaseError(error))))
+    );
+  }
+
+  // Private mapping functions
+  private mapDbServiceToService(dbService: DbService): Service {
+    return {
+      id: dbService.id,
+      name: dbService.name,
+      description: dbService.description,
+      shortDescription: dbService.short_description || '',
+      price: dbService.price,
+      duration: dbService.duration_minutes,
+      category: dbService.category as ServiceCategory,
+      imageUrl: dbService.image_url || '',
+      features: dbService.features,
+      isPopular: dbService.is_popular,
+      isActive: dbService.is_active,
+      createdAt: new Date(dbService.created_at),
+      updatedAt: new Date(dbService.updated_at)
+    };
+  }
+
+  private mapDbServicePackageToServicePackage(dbPackage: DbServicePackage): ServicePackage {
+    return {
+      id: dbPackage.id,
+      name: dbPackage.name,
+      description: dbPackage.description,
+      services: dbPackage.services,
+      totalPrice: dbPackage.total_price,
+      discountPercentage: dbPackage.discount_percentage,
+      finalPrice: dbPackage.final_price,
+      duration: dbPackage.duration_minutes,
+      imageUrl: dbPackage.image_url || '',
+      isPopular: dbPackage.is_popular
+    };
+  }
+
+  private mapDbVehicleToVehicleInfo(dbVehicle: DbVehicle): VehicleInfo {
+    return {
+      id: dbVehicle.id,
+      make: dbVehicle.make,
+      model: dbVehicle.model,
+      year: dbVehicle.year,
+      color: dbVehicle.color,
+      licensePlate: dbVehicle.license_plate || '',
+      vehicleType: dbVehicle.vehicle_type as any,
+      condition: dbVehicle.condition as any
+    };
+  }
+
+  private mapDbLocationToBookingLocation(dbLocation: DbLocation): BookingLocation {
+    return {
+      id: dbLocation.id,
+      type: dbLocation.type as any,
+      address: dbLocation.address,
+      city: dbLocation.city,
+      state: dbLocation.state,
+      zipCode: dbLocation.zip_code,
+      coordinates: dbLocation.latitude && dbLocation.longitude ? {
+        latitude: dbLocation.latitude,
+        longitude: dbLocation.longitude
+      } : undefined,
+      accessInstructions: dbLocation.access_instructions || undefined
+    };
+  }
+
+  private mapDbBookingToBooking(dbBooking: any): Booking {
+    return {
+      id: dbBooking.id,
+      userId: dbBooking.user_id,
+      serviceId: dbBooking.service_id,
+      packageId: dbBooking.package_id,
+      scheduledDateTime: new Date(`${dbBooking.scheduled_date}T${dbBooking.scheduled_time}`),
+      status: dbBooking.status as BookingStatus,
+      vehicleInfo: this.mapDbVehicleToVehicleInfo(dbBooking.vehicles),
+      location: this.mapDbLocationToBookingLocation(dbBooking.locations),
+      specialInstructions: dbBooking.special_instructions,
+      totalPrice: dbBooking.total_price,
+      paymentStatus: dbBooking.payment_status as any,
+      paymentId: dbBooking.payment_id,
+      createdAt: new Date(dbBooking.created_at),
+      updatedAt: new Date(dbBooking.updated_at),
+      cancelledAt: dbBooking.cancelled_at ? new Date(dbBooking.cancelled_at) : undefined,
+      completedAt: dbBooking.completed_at ? new Date(dbBooking.completed_at) : undefined,
+      technicianId: dbBooking.technician_id,
+      beforePhotos: dbBooking.before_photos || [],
+      afterPhotos: dbBooking.after_photos || [],
+      customerNotes: dbBooking.customer_notes,
+      technicianNotes: dbBooking.technician_notes
+    };
+  }
+}

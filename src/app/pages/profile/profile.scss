@@ -1,0 +1,363 @@
+// Profile page specific styles
+
+.profile-container {
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+// Tab navigation
+.tab-navigation {
+  .tab-button {
+    transition: all 0.2s ease-in-out;
+    
+    &:hover {
+      transform: translateX(2px);
+    }
+    
+    &.active {
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    }
+  }
+}
+
+// Profile picture upload
+.profile-picture-container {
+  .avatar {
+    transition: all 0.3s ease-in-out;
+    
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+  }
+  
+  .upload-button {
+    transition: all 0.2s ease-in-out;
+    
+    &:hover {
+      background-color: #f9fafb;
+      border-color: #d1d5db;
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// Form styling
+.profile-form {
+  .form-group {
+    margin-bottom: 1.5rem;
+    
+    label {
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    
+    input, textarea {
+      transition: all 0.2s ease-in-out;
+      
+      &:focus {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        border-color: #3b82f6;
+        transform: translateY(-1px);
+      }
+      
+      &.ng-invalid.ng-touched {
+        border-color: #ef4444;
+        
+        &:focus {
+          box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+      }
+      
+      &.ng-valid.ng-touched {
+        border-color: #10b981;
+        
+        &:focus {
+          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+      }
+    }
+  }
+}
+
+// Password form specific styles
+.password-form {
+  .password-requirements {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.5rem;
+    
+    ul {
+      list-style: none;
+      padding: 0;
+      
+      li {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.25rem;
+        
+        &.valid {
+          color: #10b981;
+          
+          .icon {
+            color: #10b981;
+          }
+        }
+        
+        &.invalid {
+          color: #ef4444;
+          
+          .icon {
+            color: #ef4444;
+          }
+        }
+        
+        .icon {
+          width: 1rem;
+          height: 1rem;
+          margin-right: 0.5rem;
+        }
+      }
+    }
+  }
+}
+
+// Notification preferences
+.preferences-section {
+  .checkbox-group {
+    .checkbox-item {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #f3f4f6;
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      input[type="checkbox"] {
+        transition: all 0.2s ease-in-out;
+        
+        &:checked {
+          background-color: #3b82f6;
+          border-color: #3b82f6;
+        }
+        
+        &:focus {
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+      }
+      
+      label {
+        margin-left: 0.5rem;
+        cursor: pointer;
+        transition: color 0.2s ease-in-out;
+        
+        &:hover {
+          color: #3b82f6;
+        }
+      }
+    }
+  }
+}
+
+// Account statistics
+.account-stats {
+  dl {
+    dt {
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 0.875rem;
+    }
+    
+    dd {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #111827;
+    }
+  }
+}
+
+// Danger zone
+.danger-zone {
+  .danger-card {
+    border: 2px solid #fecaca;
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    
+    .warning-icon {
+      animation: pulse-warning 2s infinite;
+    }
+    
+    .delete-button {
+      transition: all 0.2s ease-in-out;
+      
+      &:hover {
+        background-color: #dc2626;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+      }
+      
+      &:active {
+        transform: translateY(0);
+      }
+    }
+  }
+}
+
+@keyframes pulse-warning {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+// Modal styles
+.delete-modal {
+  .modal-backdrop {
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease-out;
+  }
+  
+  .modal-content {
+    animation: slideIn 0.3s ease-out;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// Success/Error messages
+.alert {
+  animation: slideInFromTop 0.3s ease-out;
+  
+  .alert-icon {
+    flex-shrink: 0;
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Loading states
+.loading-button {
+  .spinner {
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 1024px) {
+  .profile-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem;
+  }
+  
+  .tab-navigation {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    
+    .tab-button {
+      flex-shrink: 0;
+      margin-right: 0.5rem;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .profile-container {
+    padding: 1rem;
+  }
+  
+  .profile-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    
+    h1 {
+      font-size: 1.875rem;
+    }
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem;
+  }
+  
+  .profile-picture-container {
+    text-align: center;
+    
+    .avatar {
+      margin: 0 auto 1rem;
+    }
+  }
+}
+
+// Focus improvements for accessibility
+.focus\:ring-custom:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+// Custom scrollbar for long forms
+.form-container {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f9fafb;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f9fafb;
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+    
+    &:hover {
+      background: #9ca3af;
+    }
+  }
+}

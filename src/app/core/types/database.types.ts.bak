@@ -1,0 +1,541 @@
+// Database types generated from Supabase schema
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export interface Database {
+  public: {
+    Tables: {
+      users: {
+        Row: {
+          id: string
+          email: string
+          first_name: string
+          last_name: string
+          phone: string | null
+          profile_picture_url: string | null
+          role: 'client' | 'admin' | 'technician'
+          is_verified: boolean
+          preferences: Json
+          created_at: string
+          updated_at: string
+          last_login_at: string | null
+        }
+        Insert: {
+          id: string
+          email: string
+          first_name: string
+          last_name: string
+          phone?: string | null
+          profile_picture_url?: string | null
+          role?: 'client' | 'admin' | 'technician'
+          is_verified?: boolean
+          preferences?: Json
+          created_at?: string
+          updated_at?: string
+          last_login_at?: string | null
+        }
+        Update: {
+          id?: string
+          email?: string
+          first_name?: string
+          last_name?: string
+          phone?: string | null
+          profile_picture_url?: string | null
+          role?: 'client' | 'admin' | 'technician'
+          is_verified?: boolean
+          preferences?: Json
+          created_at?: string
+          updated_at?: string
+          last_login_at?: string | null
+        }
+      }
+      services: {
+        Row: {
+          id: string
+          name: string
+          description: string
+          short_description: string | null
+          price: number
+          duration_minutes: number
+          category: 'exterior' | 'interior' | 'protection' | 'maintenance' | 'premium'
+          image_url: string | null
+          features: string[]
+          is_popular: boolean
+          is_active: boolean
+          sort_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description: string
+          short_description?: string | null
+          price: number
+          duration_minutes: number
+          category: 'exterior' | 'interior' | 'protection' | 'maintenance' | 'premium'
+          image_url?: string | null
+          features?: string[]
+          is_popular?: boolean
+          is_active?: boolean
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string
+          short_description?: string | null
+          price?: number
+          duration_minutes?: number
+          category?: 'exterior' | 'interior' | 'protection' | 'maintenance' | 'premium'
+          image_url?: string | null
+          features?: string[]
+          is_popular?: boolean
+          is_active?: boolean
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      service_packages: {
+        Row: {
+          id: string
+          name: string
+          description: string
+          services: string[]
+          total_price: number
+          discount_percentage: number
+          final_price: number
+          duration_minutes: number
+          image_url: string | null
+          is_popular: boolean
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description: string
+          services: string[]
+          total_price: number
+          discount_percentage?: number
+          final_price: number
+          duration_minutes: number
+          image_url?: string | null
+          is_popular?: boolean
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string
+          services?: string[]
+          total_price?: number
+          discount_percentage?: number
+          final_price?: number
+          duration_minutes?: number
+          image_url?: string | null
+          is_popular?: boolean
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      vehicles: {
+        Row: {
+          id: string
+          user_id: string
+          make: string
+          model: string
+          year: number
+          color: string
+          license_plate: string | null
+          vehicle_type: 'sedan' | 'suv' | 'truck' | 'coupe' | 'convertible' | 'wagon' | 'van' | 'motorcycle'
+          condition: 'excellent' | 'good' | 'fair' | 'poor' | null
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          make: string
+          model: string
+          year: number
+          color: string
+          license_plate?: string | null
+          vehicle_type: 'sedan' | 'suv' | 'truck' | 'coupe' | 'convertible' | 'wagon' | 'van' | 'motorcycle'
+          condition?: 'excellent' | 'good' | 'fair' | 'poor' | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          make?: string
+          model?: string
+          year?: number
+          color?: string
+          license_plate?: string | null
+          vehicle_type?: 'sedan' | 'suv' | 'truck' | 'coupe' | 'convertible' | 'wagon' | 'van' | 'motorcycle'
+          condition?: 'excellent' | 'good' | 'fair' | 'poor' | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      locations: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          type: 'home' | 'office' | 'other'
+          address: string
+          city: string
+          state: string
+          zip_code: string
+          latitude: number | null
+          longitude: number | null
+          access_instructions: string | null
+          is_primary: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          type: 'home' | 'office' | 'other'
+          address: string
+          city: string
+          state: string
+          zip_code: string
+          latitude?: number | null
+          longitude?: number | null
+          access_instructions?: string | null
+          is_primary?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          type?: 'home' | 'office' | 'other'
+          address?: string
+          city?: string
+          state?: string
+          zip_code?: string
+          latitude?: number | null
+          longitude?: number | null
+          access_instructions?: string | null
+          is_primary?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      bookings: {
+        Row: {
+          id: string
+          user_id: string
+          service_id: string | null
+          package_id: string | null
+          vehicle_id: string
+          location_id: string
+          technician_id: string | null
+          scheduled_date: string
+          scheduled_time: string
+          duration_minutes: number
+          status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show'
+          total_price: number
+          special_instructions: string | null
+          before_photos: string[]
+          after_photos: string[]
+          customer_notes: string | null
+          technician_notes: string | null
+          rating: number | null
+          review: string | null
+          created_at: string
+          updated_at: string
+          confirmed_at: string | null
+          started_at: string | null
+          completed_at: string | null
+          cancelled_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          service_id?: string | null
+          package_id?: string | null
+          vehicle_id: string
+          location_id: string
+          technician_id?: string | null
+          scheduled_date: string
+          scheduled_time: string
+          duration_minutes: number
+          status?: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show'
+          total_price: number
+          special_instructions?: string | null
+          before_photos?: string[]
+          after_photos?: string[]
+          customer_notes?: string | null
+          technician_notes?: string | null
+          rating?: number | null
+          review?: string | null
+          created_at?: string
+          updated_at?: string
+          confirmed_at?: string | null
+          started_at?: string | null
+          completed_at?: string | null
+          cancelled_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          service_id?: string | null
+          package_id?: string | null
+          vehicle_id?: string
+          location_id?: string
+          technician_id?: string | null
+          scheduled_date?: string
+          scheduled_time?: string
+          duration_minutes?: number
+          status?: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show'
+          total_price?: number
+          special_instructions?: string | null
+          before_photos?: string[]
+          after_photos?: string[]
+          customer_notes?: string | null
+          technician_notes?: string | null
+          rating?: number | null
+          review?: string | null
+          created_at?: string
+          updated_at?: string
+          confirmed_at?: string | null
+          started_at?: string | null
+          completed_at?: string | null
+          cancelled_at?: string | null
+        }
+      }
+      payments: {
+        Row: {
+          id: string
+          booking_id: string | null
+          subscription_id: string | null
+          user_id: string
+          stripe_payment_intent_id: string | null
+          stripe_charge_id: string | null
+          amount: number
+          currency: string
+          status: 'pending' | 'paid' | 'refunded' | 'failed' | 'partial'
+          payment_method_type: string | null
+          payment_method_details: Json | null
+          metadata: Json
+          processed_at: string | null
+          refunded_at: string | null
+          refund_amount: number | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          booking_id?: string | null
+          subscription_id?: string | null
+          user_id: string
+          stripe_payment_intent_id?: string | null
+          stripe_charge_id?: string | null
+          amount: number
+          currency?: string
+          status?: 'pending' | 'paid' | 'refunded' | 'failed' | 'partial'
+          payment_method_type?: string | null
+          payment_method_details?: Json | null
+          metadata?: Json
+          processed_at?: string | null
+          refunded_at?: string | null
+          refund_amount?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          booking_id?: string | null
+          subscription_id?: string | null
+          user_id?: string
+          stripe_payment_intent_id?: string | null
+          stripe_charge_id?: string | null
+          amount?: number
+          currency?: string
+          status?: 'pending' | 'paid' | 'refunded' | 'failed' | 'partial'
+          payment_method_type?: string | null
+          payment_method_details?: Json | null
+          metadata?: Json
+          processed_at?: string | null
+          refunded_at?: string | null
+          refund_amount?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      subscriptions: {
+        Row: {
+          id: string
+          user_id: string
+          service_id: string | null
+          package_id: string | null
+          stripe_subscription_id: string | null
+          status: 'active' | 'cancelled' | 'paused' | 'expired'
+          monthly_price: number
+          services_per_month: number
+          services_used_this_month: number
+          current_period_start: string
+          current_period_end: string
+          next_billing_date: string
+          cancelled_at: string | null
+          paused_at: string | null
+          resumed_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          service_id?: string | null
+          package_id?: string | null
+          stripe_subscription_id?: string | null
+          status?: 'active' | 'cancelled' | 'paused' | 'expired'
+          monthly_price: number
+          services_per_month?: number
+          services_used_this_month?: number
+          current_period_start: string
+          current_period_end: string
+          next_billing_date: string
+          cancelled_at?: string | null
+          paused_at?: string | null
+          resumed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          service_id?: string | null
+          package_id?: string | null
+          stripe_subscription_id?: string | null
+          status?: 'active' | 'cancelled' | 'paused' | 'expired'
+          monthly_price?: number
+          services_per_month?: number
+          services_used_this_month?: number
+          current_period_start?: string
+          current_period_end?: string
+          next_billing_date?: string
+          cancelled_at?: string | null
+          paused_at?: string | null
+          resumed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      testimonials: {
+        Row: {
+          id: string
+          booking_id: string | null
+          user_id: string
+          rating: number
+          title: string | null
+          review: string
+          is_featured: boolean
+          is_approved: boolean
+          approved_by: string | null
+          approved_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          booking_id?: string | null
+          user_id: string
+          rating: number
+          title?: string | null
+          review: string
+          is_featured?: boolean
+          is_approved?: boolean
+          approved_by?: string | null
+          approved_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          booking_id?: string | null
+          user_id?: string
+          rating?: number
+          title?: string | null
+          review?: string
+          is_featured?: boolean
+          is_approved?: boolean
+          approved_by?: string | null
+          approved_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      business_settings: {
+        Row: {
+          id: string
+          key: string
+          value: Json
+          description: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          key: string
+          value: Json
+          description?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          key?: string
+          value?: Json
+          description?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      user_role: 'client' | 'admin' | 'technician'
+      service_category: 'exterior' | 'interior' | 'protection' | 'maintenance' | 'premium'
+      vehicle_type: 'sedan' | 'suv' | 'truck' | 'coupe' | 'convertible' | 'wagon' | 'van' | 'motorcycle'
+      vehicle_condition: 'excellent' | 'good' | 'fair' | 'poor'
+      location_type: 'home' | 'office' | 'other'
+      booking_status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show'
+      payment_status: 'pending' | 'paid' | 'refunded' | 'failed' | 'partial'
+      subscription_status: 'active' | 'cancelled' | 'paused' | 'expired'
+      notification_type: 'booking' | 'payment' | 'reminder' | 'promotion' | 'system'
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}

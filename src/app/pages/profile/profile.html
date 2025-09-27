@@ -1,0 +1,484 @@
+<div class="min-h-screen bg-gray-50 py-12">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Profile Settings</h1>
+      <p class="mt-2 text-gray-600">Manage your account information and preferences</p>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div *ngIf="successMessage()" class="mb-6 rounded-md bg-green-50 p-4">
+      <div class="flex">
+        <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+        <div class="ml-3">
+          <p class="text-sm font-medium text-green-800">{{ successMessage() }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="errorMessage()" class="mb-6 rounded-md bg-red-50 p-4">
+      <div class="flex">
+        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+        </svg>
+        <div class="ml-3">
+          <p class="text-sm font-medium text-red-800">{{ errorMessage() }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Sidebar Navigation -->
+      <div class="lg:col-span-1">
+        <nav class="space-y-1">
+          <button
+            *ngFor="let tab of tabs"
+            (click)="setActiveTab(tab.id)"
+            [class]="getTabClasses(tab.id)"
+            class="w-full text-left px-3 py-2 text-sm font-medium rounded-md transition-colors">
+            <div class="flex items-center">
+              <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path [attr.d]="tab.icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              </svg>
+              {{ tab.label }}
+            </div>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Main Content -->
+      <div class="lg:col-span-2">
+        <div class="bg-white shadow rounded-lg">
+          <!-- Personal Information Tab -->
+          <div *ngIf="activeTab() === 'personal'" class="p-6">
+            <div class="mb-6">
+              <h3 class="text-lg font-medium text-gray-900">Personal Information</h3>
+              <p class="mt-1 text-sm text-gray-600">Update your personal details and contact information.</p>
+            </div>
+
+            <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+              <!-- Profile Picture -->
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Profile Picture
+                </label>
+                <div class="flex items-center space-x-4">
+                  <div class="h-20 w-20 rounded-full overflow-hidden bg-gray-100">
+                    <img 
+                      *ngIf="profilePicture(); else defaultAvatar"
+                      [src]="profilePicture()" 
+                      alt="Profile picture"
+                      class="h-full w-full object-cover"
+                    />
+                    <ng-template #defaultAvatar>
+                      <div class="h-full w-full flex items-center justify-center bg-primary-100">
+                        <span class="text-primary-600 text-xl font-semibold">
+                          {{ getInitials() }}
+                        </span>
+                      </div>
+                    </ng-template>
+                  </div>
+                  <div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      (change)="onFileSelected($event)"
+                      class="hidden"
+                      #fileInput
+                    />
+                    <button
+                      type="button"
+                      (click)="fileInput.click()"
+                      class="bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      Change Picture
+                    </button>
+                    <p class="mt-1 text-xs text-gray-500">JPG, GIF or PNG. Max size 2MB.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Name Fields -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label for="firstName" class="block text-sm font-medium text-gray-700">
+                    First name
+                  </label>
+                  <input
+                    type="text"
+                    id="firstName"
+                    formControlName="firstName"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  />
+                  <div *ngIf="profileForm.get('firstName')?.errors && profileForm.get('firstName')?.touched" class="mt-1 text-sm text-red-600">
+                    <span *ngIf="profileForm.get('firstName')?.errors?.['required']">First name is required</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label for="lastName" class="block text-sm font-medium text-gray-700">
+                    Last name
+                  </label>
+                  <input
+                    type="text"
+                    id="lastName"
+                    formControlName="lastName"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  />
+                  <div *ngIf="profileForm.get('lastName')?.errors && profileForm.get('lastName')?.touched" class="mt-1 text-sm text-red-600">
+                    <span *ngIf="profileForm.get('lastName')?.errors?.['required']">Last name is required</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div class="mb-4">
+                <label for="email" class="block text-sm font-medium text-gray-700">
+                  Email address
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  formControlName="email"
+                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                />
+                <div *ngIf="profileForm.get('email')?.errors && profileForm.get('email')?.touched" class="mt-1 text-sm text-red-600">
+                  <span *ngIf="profileForm.get('email')?.errors?.['required']">Email is required</span>
+                  <span *ngIf="profileForm.get('email')?.errors?.['email']">Please enter a valid email</span>
+                </div>
+              </div>
+
+              <!-- Phone -->
+              <div class="mb-4">
+                <label for="phone" class="block text-sm font-medium text-gray-700">
+                  Phone number
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  formControlName="phone"
+                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  placeholder="(555) 123-4567"
+                />
+              </div>
+
+              <!-- Address -->
+              <div class="mb-4">
+                <label for="address" class="block text-sm font-medium text-gray-700">
+                  Address
+                </label>
+                <textarea
+                  id="address"
+                  formControlName="address"
+                  rows="3"
+                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  placeholder="Enter your full address"
+                ></textarea>
+              </div>
+
+              <!-- Save Button -->
+              <div class="flex justify-end">
+                <button
+                  type="submit"
+                  [disabled]="profileForm.invalid || loading()"
+                  class="bg-primary-600 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+                >
+                  <svg *ngIf="loading()" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  {{ loading() ? 'Saving...' : 'Save Changes' }}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Security Tab -->
+          <div *ngIf="activeTab() === 'security'" class="p-6">
+            <div class="mb-6">
+              <h3 class="text-lg font-medium text-gray-900">Security Settings</h3>
+              <p class="mt-1 text-sm text-gray-600">Manage your password and account security.</p>
+            </div>
+
+            <!-- Change Password Form -->
+            <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="space-y-4">
+              <div>
+                <label for="currentPassword" class="block text-sm font-medium text-gray-700">
+                  Current Password
+                </label>
+                <input
+                  type="password"
+                  id="currentPassword"
+                  formControlName="currentPassword"
+                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                />
+                <div *ngIf="passwordForm.get('currentPassword')?.errors && passwordForm.get('currentPassword')?.touched" class="mt-1 text-sm text-red-600">
+                  <span *ngIf="passwordForm.get('currentPassword')?.errors?.['required']">Current password is required</span>
+                </div>
+              </div>
+
+              <div>
+                <label for="newPassword" class="block text-sm font-medium text-gray-700">
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  id="newPassword"
+                  formControlName="newPassword"
+                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                />
+                <div *ngIf="passwordForm.get('newPassword')?.errors && passwordForm.get('newPassword')?.touched" class="mt-1 text-sm text-red-600">
+                  <span *ngIf="passwordForm.get('newPassword')?.errors?.['required']">New password is required</span>
+                  <span *ngIf="passwordForm.get('newPassword')?.errors?.['minlength']">Password must be at least 8 characters</span>
+                  <span *ngIf="passwordForm.get('newPassword')?.errors?.['pattern']">Password must contain uppercase, lowercase, number and special character</span>
+                </div>
+              </div>
+
+              <div>
+                <label for="confirmNewPassword" class="block text-sm font-medium text-gray-700">
+                  Confirm New Password
+                </label>
+                <input
+                  type="password"
+                  id="confirmNewPassword"
+                  formControlName="confirmNewPassword"
+                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                />
+                <div *ngIf="passwordForm.get('confirmNewPassword')?.errors && passwordForm.get('confirmNewPassword')?.touched" class="mt-1 text-sm text-red-600">
+                  <span *ngIf="passwordForm.get('confirmNewPassword')?.errors?.['required']">Please confirm your password</span>
+                  <span *ngIf="passwordForm.errors?.['passwordMismatch']">Passwords do not match</span>
+                </div>
+              </div>
+
+              <div class="flex justify-end">
+                <button
+                  type="submit"
+                  [disabled]="passwordForm.invalid || loading()"
+                  class="bg-primary-600 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+                >
+                  <svg *ngIf="loading()" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  {{ loading() ? 'Updating...' : 'Update Password' }}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Preferences Tab -->
+          <div *ngIf="activeTab() === 'preferences'" class="p-6">
+            <div class="mb-6">
+              <h3 class="text-lg font-medium text-gray-900">Preferences</h3>
+              <p class="mt-1 text-sm text-gray-600">Customize your account preferences and notifications.</p>
+            </div>
+
+            <form [formGroup]="preferencesForm" (ngSubmit)="updatePreferences()">
+              <!-- Email Notifications -->
+              <div class="mb-6">
+                <h4 class="text-base font-medium text-gray-900 mb-3">Email Notifications</h4>
+                <div class="space-y-3">
+                  <div class="flex items-center">
+                    <input
+                      id="emailBookingConfirmations"
+                      type="checkbox"
+                      formControlName="emailBookingConfirmations"
+                      class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                    />
+                    <label for="emailBookingConfirmations" class="ml-2 text-sm text-gray-700">
+                      Booking confirmations and updates
+                    </label>
+                  </div>
+
+                  <div class="flex items-center">
+                    <input
+                      id="emailPromotions"
+                      type="checkbox"
+                      formControlName="emailPromotions"
+                      class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                    />
+                    <label for="emailPromotions" class="ml-2 text-sm text-gray-700">
+                      Promotions and special offers
+                    </label>
+                  </div>
+
+                  <div class="flex items-center">
+                    <input
+                      id="emailReminders"
+                      type="checkbox"
+                      formControlName="emailReminders"
+                      class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                    />
+                    <label for="emailReminders" class="ml-2 text-sm text-gray-700">
+                      Appointment reminders
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SMS Notifications -->
+              <div class="mb-6">
+                <h4 class="text-base font-medium text-gray-900 mb-3">SMS Notifications</h4>
+                <div class="space-y-3">
+                  <div class="flex items-center">
+                    <input
+                      id="smsReminders"
+                      type="checkbox"
+                      formControlName="smsReminders"
+                      class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                    />
+                    <label for="smsReminders" class="ml-2 text-sm text-gray-700">
+                      SMS appointment reminders
+                    </label>
+                  </div>
+
+                  <div class="flex items-center">
+                    <input
+                      id="smsUpdates"
+                      type="checkbox"
+                      formControlName="smsUpdates"
+                      class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                    />
+                    <label for="smsUpdates" class="ml-2 text-sm text-gray-700">
+                      Service status updates
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Privacy Settings -->
+              <div class="mb-6">
+                <h4 class="text-base font-medium text-gray-900 mb-3">Privacy</h4>
+                <div class="flex items-center">
+                  <input
+                    id="shareDataForAnalytics"
+                    type="checkbox"
+                    formControlName="shareDataForAnalytics"
+                    class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  />
+                  <label for="shareDataForAnalytics" class="ml-2 text-sm text-gray-700">
+                    Share usage data to help improve our services
+                  </label>
+                </div>
+              </div>
+
+              <div class="flex justify-end">
+                <button
+                  type="submit"
+                  [disabled]="loading()"
+                  class="bg-primary-600 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+                >
+                  <svg *ngIf="loading()" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  {{ loading() ? 'Saving...' : 'Save Preferences' }}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Account Tab -->
+          <div *ngIf="activeTab() === 'account'" class="p-6">
+            <div class="mb-6">
+              <h3 class="text-lg font-medium text-gray-900">Account Management</h3>
+              <p class="mt-1 text-sm text-gray-600">Manage your account settings and data.</p>
+            </div>
+
+            <!-- Account Information -->
+            <div class="mb-8">
+              <h4 class="text-base font-medium text-gray-900 mb-4">Account Information</h4>
+              <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                <div>
+                  <dt class="text-sm font-medium text-gray-500">Member since</dt>
+                  <dd class="mt-1 text-sm text-gray-900">{{ formatDate(user()?.created_at) }}</dd>
+                </div>
+                <div>
+                  <dt class="text-sm font-medium text-gray-500">Account type</dt>
+                  <dd class="mt-1 text-sm text-gray-900">Standard Customer</dd>
+                </div>
+                <div>
+                  <dt class="text-sm font-medium text-gray-500">Total bookings</dt>
+                  <dd class="mt-1 text-sm text-gray-900">{{ userStats().totalBookings || 0 }}</dd>
+                </div>
+                <div>
+                  <dt class="text-sm font-medium text-gray-500">Last service</dt>
+                  <dd class="mt-1 text-sm text-gray-900">{{ userStats().lastServiceDate ? formatDate(userStats().lastServiceDate) : 'No services yet' }}</dd>
+                </div>
+              </dl>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="border-t border-gray-200 pt-8">
+              <h4 class="text-base font-medium text-red-600 mb-4">Danger Zone</h4>
+              <div class="bg-red-50 border border-red-200 rounded-md p-4">
+                <div class="flex">
+                  <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                  <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">Delete Account</h3>
+                    <div class="mt-2 text-sm text-red-700">
+                      <p>Once you delete your account, there is no going back. This action cannot be undone.</p>
+                    </div>
+                    <div class="mt-4">
+                      <button
+                        type="button"
+                        (click)="confirmDeleteAccount()"
+                        class="bg-red-600 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                      >
+                        Delete Account
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Account Confirmation Modal -->
+<div 
+  *ngIf="showDeleteModal()" 
+  class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
+  (click)="cancelDeleteAccount()"
+>
+  <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white" (click)="$event.stopPropagation()">
+    <div class="mt-3 text-center">
+      <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+        <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 mt-4">Delete Account</h3>
+      <div class="mt-2 px-7 py-3">
+        <p class="text-sm text-gray-500">
+          Are you sure you want to delete your account? This action cannot be undone and you will lose all your booking history and profile data.
+        </p>
+      </div>
+      <div class="items-center px-4 py-3">
+        <button
+          (click)="deleteAccount()"
+          [disabled]="loading()"
+          class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 disabled:opacity-50"
+        >
+          {{ loading() ? 'Deleting...' : 'Yes, Delete Account' }}
+        </button>
+        <button
+          (click)="cancelDeleteAccount()"
+          class="mt-3 px-4 py-2 bg-white text-gray-500 text-base font-medium rounded-md w-full shadow-sm border hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
