@@ -1,6 +1,6 @@
 -- Sample Data for NAS Detail Car Detailing Database
 -- Insert sample services
-INSERT INTO public.services (id, name, description, short_description, price, duration_minutes, category, features, is_popular, sort_order) VALUES 
+INSERT INTO public.services (id, name, description, short_description, price, duration_minutes, category, features, is_popular, sort_order) VALUES
 (
     uuid_generate_v4(),
     'Express Exterior Wash',
@@ -75,7 +75,7 @@ INSERT INTO public.services (id, name, description, short_description, price, du
 );
 
 -- Insert service packages
-INSERT INTO public.service_packages (name, description, services, total_price, discount_percentage, final_price, duration_minutes, is_popular) VALUES 
+INSERT INTO public.service_packages (name, description, services, total_price, discount_percentage, final_price, duration_minutes, is_popular) VALUES
 (
     'Ultimate Protection Package',
     'Our most comprehensive package including full detail and ceramic coating for maximum protection and shine.',
@@ -98,7 +98,7 @@ INSERT INTO public.service_packages (name, description, services, total_price, d
 );
 
 -- Insert sample service areas
-INSERT INTO public.service_areas (name, description, cities, postal_codes, is_active) VALUES 
+INSERT INTO public.service_areas (name, description, cities, postal_codes, is_active) VALUES
 (
     'Downtown Metro',
     'Primary service area covering downtown and immediate surrounding neighborhoods',
@@ -122,7 +122,7 @@ INSERT INTO public.service_areas (name, description, cities, postal_codes, is_ac
 );
 
 -- Insert business settings
-INSERT INTO public.business_settings (key, value, description) VALUES 
+INSERT INTO public.business_settings (key, value, description) VALUES
 (
     'business_hours',
     '{"monday": {"open": "08:00", "close": "18:00"}, "tuesday": {"open": "08:00", "close": "18:00"}, "wednesday": {"open": "08:00", "close": "18:00"}, "thursday": {"open": "08:00", "close": "18:00"}, "friday": {"open": "08:00", "close": "18:00"}, "saturday": {"open": "09:00", "close": "17:00"}, "sunday": {"closed": true}}',
@@ -150,7 +150,7 @@ INSERT INTO public.business_settings (key, value, description) VALUES
 );
 
 -- Insert sample promotions
-INSERT INTO public.promotions (code, name, description, discount_type, discount_value, usage_limit, is_active, valid_from, valid_until) VALUES 
+INSERT INTO public.promotions (code, name, description, discount_type, discount_value, usage_limit, is_active, valid_from, valid_until) VALUES
 (
     'WELCOME20',
     'New Customer Welcome',
@@ -186,7 +186,7 @@ INSERT INTO public.promotions (code, name, description, discount_type, discount_
 );
 
 -- Insert sample testimonials (these would normally come from real customers)
-INSERT INTO public.testimonials (user_id, rating, title, review, is_featured, is_approved, approved_at) VALUES 
+INSERT INTO public.testimonials (user_id, rating, title, review, is_featured, is_approved, approved_at) VALUES
 (
     NULL, -- This would be a real user ID in production
     5,
@@ -200,7 +200,7 @@ INSERT INTO public.testimonials (user_id, rating, title, review, is_featured, is
     NULL,
     5,
     'Professional and Thorough',
-    'I''ve been using NAS Detail for 6 months now with their monthly plan. Every technician has been professional, punctual, and thorough. They clean areas I didn''t even know were dirty. Highly recommend!',
+    'I''ve been using NAS Detail for 6 months now with their monthly plan. Every technician has been professional, punctual, and thorough. They clean areas I did not even know were dirty. Highly recommend!',
     true,
     true,
     NOW()

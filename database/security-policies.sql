@@ -2,14 +2,14 @@
 -- These policies ensure users can only access their own data
 
 -- Enable RLS on all user-specific tables
-ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.vehicles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.locations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.payments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.testimonials ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."users" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."vehicles" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."locations" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."bookings" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."payments" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."subscriptions" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."notifications" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."testimonials" ENABLE ROW LEVEL SECURITY;
 
 -- Users table policies
 CREATE POLICY "Users can view their own profile" ON public.users
@@ -21,7 +21,7 @@ CREATE POLICY "Users can update their own profile" ON public.users
 CREATE POLICY "Admins can view all users" ON public.users
     FOR SELECT USING (
         EXISTS (
-            SELECT 1 FROM public.users 
+            SELECT 1 FROM public.users
             WHERE id = auth.uid() AND role = 'admin'
         )
     );
@@ -33,7 +33,7 @@ CREATE POLICY "Users can manage their own vehicles" ON public.vehicles
 CREATE POLICY "Admins and technicians can view all vehicles" ON public.vehicles
     FOR SELECT USING (
         EXISTS (
-            SELECT 1 FROM public.users 
+            SELECT 1 FROM public.users
             WHERE id = auth.uid() AND role IN ('admin', 'technician')
         )
     );
@@ -45,7 +45,7 @@ CREATE POLICY "Users can manage their own locations" ON public.locations
 CREATE POLICY "Admins and technicians can view all locations" ON public.locations
     FOR SELECT USING (
         EXISTS (
-            SELECT 1 FROM public.users 
+            SELECT 1 FROM public.users
             WHERE id = auth.uid() AND role IN ('admin', 'technician')
         )
     );
@@ -71,7 +71,7 @@ CREATE POLICY "Technicians can update their assigned bookings" ON public.booking
 CREATE POLICY "Admins can manage all bookings" ON public.bookings
     FOR ALL USING (
         EXISTS (
-            SELECT 1 FROM public.users 
+            SELECT 1 FROM public.users
             WHERE id = auth.uid() AND role = 'admin'
         )
     );
@@ -83,7 +83,7 @@ CREATE POLICY "Users can view their own payments" ON public.payments
 CREATE POLICY "Admins can manage all payments" ON public.payments
     FOR ALL USING (
         EXISTS (
-            SELECT 1 FROM public.users 
+            SELECT 1 FROM public.users
             WHERE id = auth.uid() AND role = 'admin'
         )
     );
@@ -95,7 +95,7 @@ CREATE POLICY "Users can manage their own subscriptions" ON public.subscriptions
 CREATE POLICY "Admins can manage all subscriptions" ON public.subscriptions
     FOR ALL USING (
         EXISTS (
-            SELECT 1 FROM public.users 
+            SELECT 1 FROM public.users
             WHERE id = auth.uid() AND role = 'admin'
         )
     );
@@ -107,7 +107,7 @@ CREATE POLICY "Users can manage their own notifications" ON public.notifications
 CREATE POLICY "Admins can manage all notifications" ON public.notifications
     FOR ALL USING (
         EXISTS (
-            SELECT 1 FROM public.users 
+            SELECT 1 FROM public.users
             WHERE id = auth.uid() AND role = 'admin'
         )
     );
@@ -122,7 +122,7 @@ CREATE POLICY "Everyone can view approved testimonials" ON public.testimonials
 CREATE POLICY "Admins can manage all testimonials" ON public.testimonials
     FOR ALL USING (
         EXISTS (
-            SELECT 1 FROM public.users 
+            SELECT 1 FROM public.users
             WHERE id = auth.uid() AND role = 'admin'
         )
     );
@@ -134,7 +134,7 @@ CREATE POLICY "Anyone can view active services" ON public.services
 CREATE POLICY "Admins can manage services" ON public.services
     FOR ALL USING (
         EXISTS (
-            SELECT 1 FROM public.users 
+            SELECT 1 FROM public.users
             WHERE id = auth.uid() AND role = 'admin'
         )
     );
@@ -145,7 +145,7 @@ CREATE POLICY "Anyone can view active service packages" ON public.service_packag
 CREATE POLICY "Admins can manage service packages" ON public.service_packages
     FOR ALL USING (
         EXISTS (
-            SELECT 1 FROM public.users 
+            SELECT 1 FROM public.users
             WHERE id = auth.uid() AND role = 'admin'
         )
     );
@@ -168,7 +168,7 @@ CREATE POLICY "Technicians can manage their own time slots" ON public.time_slots
 CREATE POLICY "Admins can manage all time slots" ON public.time_slots
     FOR ALL USING (
         EXISTS (
-            SELECT 1 FROM public.users 
+            SELECT 1 FROM public.users
             WHERE id = auth.uid() AND role = 'admin'
         )
     );
@@ -183,7 +183,7 @@ CREATE POLICY "Technicians can update their own profile" ON public.technicians
 CREATE POLICY "Admins can manage all technicians" ON public.technicians
     FOR ALL USING (
         EXISTS (
-            SELECT 1 FROM public.users 
+            SELECT 1 FROM public.users
             WHERE id = auth.uid() AND role = 'admin'
         )
     );
@@ -199,7 +199,7 @@ CREATE POLICY "Anyone can view business settings" ON public.business_settings
 CREATE POLICY "Admins can manage business settings" ON public.business_settings
     FOR ALL USING (
         EXISTS (
-            SELECT 1 FROM public.users 
+            SELECT 1 FROM public.users
             WHERE id = auth.uid() AND role = 'admin'
         )
     );

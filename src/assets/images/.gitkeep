@@ -1,0 +1,9 @@
+# Images Directory
+
+This directory contains image assets for the application.
+
+## Hero Background
+- `audi-hero-bg.jpg` - High-resolution image of an Audi sports car in a dark showroom with spotlight
+  - Recommended dimensions: 1920x1080 or higher
+  - Format: JPG or WebP for optimal performance
+  - Should be optimized for web use (compressed but high quality)
