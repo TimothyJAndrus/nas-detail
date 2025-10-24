@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
-import { Observable, from, BehaviorSubject, throwError, of } from 'rxjs';
-import { map, catchError, tap, switchMap } from 'rxjs/operators';
+import { Observable, from, BehaviorSubject, throwError } from 'rxjs';
+import { map, catchError, switchMap } from 'rxjs/operators';
 import { User, CreateUserRequest, LoginRequest, AuthResponse, UserRole } from '../models/user.interface';
 import { supabase, handleSupabaseError } from '../config/supabase.config';
 import { Session } from '@supabase/supabase-js';
@@ -25,15 +25,17 @@ interface DbUser {
   providedIn: 'root'
 })
 export class AuthService {
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
-  private sessionSubject = new BehaviorSubject<Session | null>(null);
-  
+  private readonly currentUserSubject = new BehaviorSubject<User | null>(null);
+  private readonly sessionSubject = new BehaviorSubject<Session | null>(null);
+
   public currentUser$ = this.currentUserSubject.asObservable();
   public session$ = this.sessionSubject.asObservable();
   public isAuthenticated$ = signal(false);
   public userRole$ = signal('client' as UserRole);
-  
-  constructor() {
+
+  constructor() { }
+
+  public init(): void {
     this.initializeAuth();
   }
 
@@ -59,7 +61,7 @@ export class AuthService {
 
   private async setSession(session: Session): Promise<void> {
     this.sessionSubject.next(session);
-    
+
     try {
       // Get user profile from database
       const { data: userProfile, error } = await supabase
@@ -79,7 +81,7 @@ export class AuthService {
         this.currentUserSubject.next(user);
         this.isAuthenticated$.set(true);
         this.userRole$.set(user.role);
-        
+
         // Update last login
         const updateData = { last_login_at: new Date().toISOString() };
         await supabase
@@ -226,11 +228,11 @@ export class AuthService {
           // If user doesn't exist in our database, create them
           await this.createUserProfile(data.user);
         }
-        
+
         const user = userProfile ? this.mapDbUserToUser(userProfile) : this.getCurrentUser();
-        
+
         if (!user) throw new Error('Failed to load user profile');
-        
+
         return {
           user,
           accessToken: data.session.access_token,
@@ -316,7 +318,7 @@ export class AuthService {
     return from(supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`
+        redirectTo: `${globalThis.location.origin}/auth/callback`
       }
     })).pipe(
       map(() => void 0),

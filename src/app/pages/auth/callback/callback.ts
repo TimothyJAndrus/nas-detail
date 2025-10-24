@@ -26,7 +26,7 @@ import { AuthService } from '../../../core/services/auth.service';
     .animate-spin {
       animation: spin 1s linear infinite;
     }
-    
+
     @keyframes spin {
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
@@ -36,15 +36,15 @@ import { AuthService } from '../../../core/services/auth.service';
 export class AuthCallbackComponent implements OnInit {
 
   constructor(
-    private authService: AuthService,
-    private router: Router
+    private readonly authService: AuthService,
+    private readonly router: Router
   ) {}
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
     try {
       // The AuthService should automatically handle the session
       // when Supabase detects the auth callback
-      
+
       // Wait a moment for the auth state to update
       setTimeout(() => {
         if (this.authService.isAuthenticated$()) {
@@ -52,14 +52,14 @@ export class AuthCallbackComponent implements OnInit {
           this.router.navigate(['/dashboard']);
         } else {
           // Authentication failed, redirect to login with error
-          this.router.navigate(['/login'], { 
+          this.router.navigate(['/login'], {
             queryParams: { error: 'Authentication failed. Please try again.' }
           });
         }
       }, 2000);
     } catch (error) {
       console.error('Auth callback error:', error);
-      this.router.navigate(['/login'], { 
+      this.router.navigate(['/login'], {
         queryParams: { error: 'Authentication failed. Please try again.' }
       });
     }
