@@ -32,6 +32,7 @@ After project creation, get these from your Supabase dashboard:
 Replace the placeholder values in:
 
 **`src/environments/environment.development.ts`**
+
 ```typescript
 export const environment = {
   production: false,
@@ -55,6 +56,7 @@ export const environment = {
 ```
 
 **`src/environments/environment.ts`** (Production)
+
 ```typescript
 export const environment = {
   production: true,
@@ -99,17 +101,20 @@ export const environment = {
 ### 7. Seed Data (Optional)
 
 For development and testing:
+
 1. In SQL Editor, run `database/seed-data.sql`
 2. This populates sample services and promotions
 
 ## Development
 
 ### Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### Start Development Server
+
 ```bash
 npm start
 # or
@@ -119,16 +124,19 @@ ng serve
 The application will be available at `http://localhost:4200`
 
 ### Build for Production
+
 ```bash
 npm run build
 ```
 
 ### Run Tests
+
 ```bash
 npm test
 ```
 
 ### Serve SSR Build
+
 ```bash
 npm run serve:ssr:nas-detail-website
 ```
@@ -136,6 +144,7 @@ npm run serve:ssr:nas-detail-website
 ## Features
 
 ### Authentication
+
 - Email/password registration and login
 - Google OAuth integration
 - Facebook OAuth integration
@@ -143,12 +152,14 @@ npm run serve:ssr:nas-detail-website
 - Email verification
 
 ### User Management
+
 - Profile management
 - Password changes
 - Preference settings
 - Account deletion
 
 ### Booking System
+
 - Service catalog browsing
 - Multi-step booking process
 - Vehicle management
@@ -156,6 +167,7 @@ npm run serve:ssr:nas-detail-website
 - Payment integration
 
 ### Database
+
 - PostgreSQL with Supabase
 - Real-time subscriptions
 - Row Level Security
@@ -183,6 +195,7 @@ npm run serve:ssr:nas-detail-website
 ### Social Login Setup
 
 #### Google OAuth
+
 1. Go to [Google Cloud Console](https://console.cloud.google.com)
 2. Create a new project or select existing
 3. Enable Google+ API
@@ -191,6 +204,7 @@ npm run serve:ssr:nas-detail-website
 6. Copy Client ID and Secret to Supabase
 
 #### Facebook OAuth
+
 1. Go to [Facebook Developers](https://developers.facebook.com)
 2. Create a new app
 3. Add Facebook Login product
@@ -200,6 +214,7 @@ npm run serve:ssr:nas-detail-website
 ## Support
 
 For issues and questions:
+
 - Check the [Supabase Documentation](https://supabase.com/docs)
 - Review [Angular Documentation](https://angular.dev)
 - Create an issue in the project repository

@@ -12,51 +12,51 @@ import { LoginRequest } from '../../../core/models/user.interface';
   styleUrl: './login.scss'
 })
 export class LoginComponent {
-  private fb = inject(FormBuilder);
-  private router = inject(Router);
-  private authService = inject(AuthService);
-  
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+
   loginForm: FormGroup;
   forgotPasswordForm: FormGroup;
-  
+
   loading = signal(false);
   showPassword = signal(false);
   errorMessage = signal('');
   successMessage = signal('');
   showForgotPassword = false;
-  
+
   constructor() {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       rememberMe: [false]
     });
-    
+
     this.forgotPasswordForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]]
     });
   }
-  
+
   togglePasswordVisibility(): void {
     this.showPassword.update(show => !show);
   }
-  
+
   onSubmit(): void {
     if (this.loginForm.valid && !this.loading()) {
       this.loading.set(true);
       this.errorMessage.set('');
       this.successMessage.set('');
-      
+
       const credentials: LoginRequest = {
         email: this.loginForm.get('email')?.value,
         password: this.loginForm.get('password')?.value
       };
-      
+
       this.authService.signIn(credentials).subscribe({
         next: (response) => {
           this.loading.set(false);
           this.successMessage.set('Login successful! Redirecting...');
-          
+
           // Redirect to dashboard or intended page
           setTimeout(() => {
             this.router.navigate(['/dashboard']);
@@ -69,14 +69,14 @@ export class LoginComponent {
       });
     }
   }
-  
+
   onForgotPassword(): void {
     if (this.forgotPasswordForm.valid && !this.loading()) {
       this.loading.set(true);
       this.errorMessage.set('');
-      
+
       const email = this.forgotPasswordForm.get('email')?.value;
-      
+
       this.authService.resetPassword(email).subscribe({
         next: () => {
           this.loading.set(false);
@@ -91,12 +91,12 @@ export class LoginComponent {
       });
     }
   }
-  
+
   signInWithGoogle(): void {
     if (!this.loading()) {
       this.loading.set(true);
       this.errorMessage.set('');
-      
+
       this.authService.signInWithProvider('google').subscribe({
         next: () => {
           // OAuth redirect will handle the rest
@@ -109,12 +109,12 @@ export class LoginComponent {
       });
     }
   }
-  
+
   signInWithFacebook(): void {
     if (!this.loading()) {
       this.loading.set(true);
       this.errorMessage.set('');
-      
+
       this.authService.signInWithProvider('facebook').subscribe({
         next: () => {
           // OAuth redirect will handle the rest
